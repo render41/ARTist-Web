@@ -3,53 +3,402 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#09090b">
-  <meta name="description" content="ARtist — Intervenções artísticas em Realidade Aumentada 3D diretamente no navegador. Em breve.">
-  <meta property="og:title" content="ARtist — Em breve">
-  <meta property="og:description" content="Intervenções artísticas em 3D ancoradas na cidade via WebAR. Em breve.">
-  <meta property="og:type" content="website">
-  <title>Em breve | ARtist</title>
+  <meta name="description" content="Instalação Invisível: pesquisa de TCC em Arte e Realidade Aumentada no tecido urbano de Fortaleza (IFCE), mapeando Messejana, Benfica e Jacarey.">
+  <meta name="theme-color" content="#fef3dc">
+  <title>Instalação Invisível — Arte em Realidade Aumentada | Fortaleza CE</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <div class="ambient-reticle" aria-hidden="true">
-    <svg viewBox="0 0 400 400" fill="none">
-      <circle cx="200" cy="200" r="180" stroke="currentColor" stroke-width="1" stroke-dasharray="4 8"></circle>
-      <circle cx="200" cy="200" r="118" stroke="currentColor" stroke-width="1"></circle>
-      <path d="M200 10v32M200 358v32M10 200h32M358 200h32" stroke="currentColor" stroke-width="1.25"></path>
-    </svg>
-  </div>
+  <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo principal</a>
 
-  <div class="page-shell">
-    <header class="site-header">
-      <div class="brand">
-        <svg width="22" height="22" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-          <circle cx="32" cy="32" r="18" stroke="currentColor" stroke-width="4"></circle>
-          <path d="M32 6v14M32 44v14M6 32h14M44 32h14" stroke="#22c55e" stroke-width="4" stroke-linecap="round"></path>
-          <circle cx="32" cy="32" r="5" fill="currentColor"></circle>
-        </svg>
-        <span class="brand-name">ARtist</span>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand-link" href="#topo" aria-label="Instalação Invisível — Voltar ao topo">
+        <img
+          class="brand-logo"
+          src="assets/logo.png"
+          alt="Marca animada Instalação Invisível"
+          width="74"
+          height="58"
+          data-animated-gif
+        >
+      </a>
+
+      <div class="header-meta">
+        <p>Pesquisa de TCC • AR</p>
+        <p>Fortaleza CE 2026</p>
       </div>
-      <span class="tech-tag">WebAR • Geolocation 3D</span>
-    </header>
+    </div>
+  </header>
 
-    <main class="coming-soon-card">
-      <p class="status-badge">
-        <span class="status-dot" aria-hidden="true"></span>
-        <span>Em breve</span>
+  <main id="conteudo-principal">
+    <section class="hero" id="topo" aria-labelledby="hero-title">
+      <div class="hero-headline-stage">
+        <h1 class="hero-title" id="hero-title">
+          Arte em Realidade Aumentada no tecido urbano de Fortaleza.
+        </h1>
+      </div>
+
+      <div class="hero-figure-stage" aria-hidden="true">
+        <div class="hero-figure-sticky">
+          <img
+            class="hero-figure-image"
+            src="assets/andarilho-ani.png"
+            alt=""
+            width="514"
+            height="514"
+            data-animated-gif
+          >
+        </div>
+      </div>
+    </section>
+
+    <section class="intro" aria-label="Apresentação da pesquisa">
+      <div class="section-container intro-container">
+        <p class="intro-copy">
+          A "Instalação Invisível" é uma pesquisa em arte que ocupa a paisagem cotidiana por meio da Realidade Aumentada. Animações em papel e modelos 3D estão expostos nas ruas de Fortaleza, suspensos entre o espaço físico e a tela do celular. Uma intervenção que existe apenas no encontro entre a cidade, o código e o corpo de quem decide parar e explorar.
+        </p>
+
+        <a class="cta-button" href="#cartografias">
+          <span>EXPLORAR OS TERRITÓRIOS</span>
+          <img src="assets/arrow-up.svg" alt="" width="16" height="16">
+        </a>
+      </div>
+    </section>
+
+    <section class="about" id="sobre" aria-labelledby="about-title">
+      <div class="section-container about-container">
+        <h2 class="section-title" id="about-title">SOBRE A PESQUISA:</h2>
+
+        <div class="about-prose">
+          <p>
+            Todos os dias, somos imersos pelo movimento da cidade. Atravessamos cruzamentos, campus e praças em um ritmo quase automático, de tal forma que podemos nos tornar alheios ao espaço em nossa volta. O celular, na maioria das vezes, funciona como um anestésico para nos afastar do mundo tangível, trocando nosso presente pela urgência do consumo rápido.
+          </p>
+          <p>
+            A <strong>Instalação Invisível</strong> nasce exatamente na rachadura desse comportamento: e se usássemos a tela não para fugir do agora, mas para explorar e decifrar o que está oculto?
+          </p>
+          <p>
+            A proposta não é desconectar você do mundo real para um mundo virtual, mas ancorar o virtual no tecido urbano. Ao convergir pintura digital, animação e modelagem 3D, a Realidade Aumentada viabiliza uma ocupação híbrida, onde o espaço físico e a camada invisível coabitam em silêncio. É explorar os limites de exposição da arte digital, transformando a rua em campo expandido.
+          </p>
+        </div>
+
+        <div class="project-details">
+          <h3 class="details-heading">Detalhes do projeto</h3>
+          <dl class="meta-table">
+            <div class="meta-row">
+              <dt>TCC</dt>
+              <dd>Instalação Invisível: Arte em realidade aumentada</dd>
+            </div>
+            <div class="meta-row">
+              <dt>Artista e pesquisadora</dt>
+              <dd>Fernanda Lopes</dd>
+            </div>
+            <div class="meta-row">
+              <dt>Instituição</dt>
+              <dd>Instituto Federal de Educação, Ciência e Tecnologia do Ceará (IFCE) - Licenciatura em Artes Visuais</dd>
+            </div>
+            <div class="meta-row">
+              <dt>Desenvolvimento Web e Ar.js</dt>
+              <dd>Gabriel Miranda</dd>
+            </div>
+            <div class="meta-row">
+              <dt>Ano</dt>
+              <dd>2026</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="cartographies" id="cartografias" aria-labelledby="cartographies-title">
+      <div class="section-container cartographies-header">
+        <h2 class="section-title" id="cartographies-title">CARTOGRAFIAS:</h2>
+
+        <div class="cartographies-intro">
+          <p>
+            Três bairros de Fortaleza mapeados. Seis intervenções digitais. As obras operam por rastreamento de imagem (Image Tracking), e coordenadas de GPS (Geolocalização).
+          </p>
+          <p class="cartographies-instruction">
+            Escolha um território, vá até o local e aponte sua câmera.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="carousel"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Territórios mapeados em Fortaleza"
+      >
+        <div class="carousel-controls">
+          <button
+            type="button"
+            class="carousel-button"
+            data-direction="previous"
+            aria-label="Território anterior"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="carousel-button"
+            data-direction="next"
+            aria-label="Próximo território"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="carousel-track" tabindex="0" role="group" aria-label="Cartografias por bairro">
+          <article
+            class="territory-card"
+            role="group"
+            aria-roledescription="slide"
+            aria-label="1 de 3: Bairro Messejana"
+            data-marker-name="Ir para Messejana"
+          >
+            <header class="territory-header">
+              <p class="territory-label">Bairro</p>
+              <h3 class="territory-name">Messejana:</h3>
+            </header>
+
+            <div class="territory-interventions">
+              <div class="intervention-slot">
+                <div
+                  class="media-placeholder"
+                  role="img"
+                  aria-label="Registro da intervenção por Image Tracking em Messejana — em breve"
+                ></div>
+                <dl class="meta-table meta-table-compact">
+                  <div class="meta-row">
+                    <dt>Tipo</dt>
+                    <dd>Image Tracker</dd>
+                  </div>
+                  <div class="meta-row">
+                    <dt>Onde</dt>
+                    <dd>[em breve]</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="intervention-slot">
+                <div
+                  class="media-placeholder"
+                  role="img"
+                  aria-label="Registro da intervenção por Geolocalização em Messejana — em breve"
+                ></div>
+                <dl class="meta-table meta-table-compact">
+                  <div class="meta-row">
+                    <dt>Tipo</dt>
+                    <dd>Geolocalização</dd>
+                  </div>
+                  <div class="meta-row">
+                    <dt>Onde</dt>
+                    <dd class="coordinates-text">-3.831601, -38.497673</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="territory-card"
+            role="group"
+            aria-roledescription="slide"
+            aria-label="2 de 3: Bairro Benfica"
+            data-marker-name="Ir para Benfica"
+            data-initial-slide="true"
+          >
+            <header class="territory-header">
+              <p class="territory-label">Bairro</p>
+              <h3 class="territory-name">Benfica:</h3>
+            </header>
+
+            <div class="territory-interventions">
+              <div class="intervention-slot">
+                <div
+                  class="media-placeholder"
+                  role="img"
+                  aria-label="Registro da intervenção por Image Tracking no Benfica — em breve"
+                ></div>
+                <dl class="meta-table meta-table-compact">
+                  <div class="meta-row">
+                    <dt>Tipo</dt>
+                    <dd>Image Tracker</dd>
+                  </div>
+                  <div class="meta-row">
+                    <dt>Onde</dt>
+                    <dd>[em breve]</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="intervention-slot">
+                <div
+                  class="media-placeholder"
+                  role="img"
+                  aria-label="Registro da intervenção por Geolocalização no Benfica — em breve"
+                ></div>
+                <dl class="meta-table meta-table-compact">
+                  <div class="meta-row">
+                    <dt>Tipo</dt>
+                    <dd>Geolocalização</dd>
+                  </div>
+                  <div class="meta-row">
+                    <dt>Onde</dt>
+                    <dd class="coordinates-list">
+                      <span>-3.740955, -38.539123</span>
+                      <span>-3.744483, -38.536499</span>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="territory-card"
+            role="group"
+            aria-roledescription="slide"
+            aria-label="3 de 3: Bairro Cambeba — Jacarey"
+            data-marker-name="Ir para Jacarey"
+          >
+            <header class="territory-header">
+              <p class="territory-label">Bairro Cambeba</p>
+              <h3 class="territory-name">Jacarey:</h3>
+            </header>
+
+            <div class="territory-interventions">
+              <div class="intervention-slot">
+                <div
+                  class="media-placeholder"
+                  role="img"
+                  aria-label="Registro da intervenção por Image Tracking no Jacarey — em breve"
+                ></div>
+                <dl class="meta-table meta-table-compact">
+                  <div class="meta-row">
+                    <dt>Tipo</dt>
+                    <dd>Image Tracker</dd>
+                  </div>
+                  <div class="meta-row">
+                    <dt>Onde</dt>
+                    <dd>[em breve]</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="intervention-slot">
+                <div
+                  class="media-placeholder"
+                  role="img"
+                  aria-label="Registro da intervenção por Geolocalização no Jacarey — em breve"
+                ></div>
+                <dl class="meta-table meta-table-compact">
+                  <div class="meta-row">
+                    <dt>Tipo</dt>
+                    <dd>Geolocalização</dd>
+                  </div>
+                  <div class="meta-row">
+                    <dt>Onde</dt>
+                    <dd class="coordinates-text">-3.800710, -38.490736</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <p class="visually-hidden carousel-status" role="status" aria-live="polite"></p>
+
+        <nav class="carousel-markers" aria-label="Escolher território"></nav>
+      </div>
+    </section>
+
+    <section class="archive" id="acervo" aria-labelledby="archive-title">
+      <div class="section-container archive-container">
+        <h2 class="section-title section-title-light" id="archive-title">ACERVO ABERTO:</h2>
+
+        <p class="archive-intro">
+          <strong>A Instalação Invisível é uma pesquisa de domínio público.</strong> Este espaço funciona como um laboratório aberto para quem deseja compreender um pouco mais da tecnologia, criar suas próprias obras ou multiplicar este projeto pela cidade.
+        </p>
+
+        <div class="archive-grid">
+          <article class="archive-card">
+            <h3 class="archive-card-title">Repositório</h3>
+            <p class="archive-card-copy">
+              A maioria dos guias de como utilizar a Artivive e principalmente o AR.js estão em inglês. Por isso montamos um repositório no GitHub com o passo a passo para criar com o Artivive Bridge e a lógica de geolocalização na web.
+            </p>
+            <a
+              class="archive-button"
+              href="https://github.com/render41/ARTist-Web"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Acessar Repositório
+            </a>
+          </article>
+
+          <article class="archive-card">
+            <h3 class="archive-card-title">Templates</h3>
+            <p class="archive-card-copy">
+              Disponibilizamos arquivos modulares abertos (em PDF e formato Canva) com layout pronto, marcadores limpos e espaços reservados para você inserir sua própria arte e gerar seus QR Codes.
+            </p>
+            <button
+              type="button"
+              class="archive-button"
+              data-pending-resource="Templates em PDF e Canva"
+            >
+              Baixar templates
+            </button>
+          </article>
+
+          <article class="archive-card">
+            <h3 class="archive-card-title">Adesivos Instalação Invisível</h3>
+            <p class="archive-card-copy">
+              Baixe os adesivos oficiais do projeto (Messejana, Benfica e Jacarey) já formatados com as imagens-gatilho e os QR Codes correspondentes. Imprima em papel adesivo e espalhe o acervo.
+            </p>
+            <button
+              type="button"
+              class="archive-button"
+              data-pending-resource="Adesivos oficiais para impressão"
+            >
+              Baixar Adesivos
+            </button>
+          </article>
+        </div>
+
+        <p class="archive-feedback" role="status" aria-live="polite" hidden></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" aria-labelledby="thanks-title">
+    <div
+      class="footer-media"
+      role="img"
+      aria-label="Espaço reservado para fotografia do projeto — em breve"
+    ></div>
+
+    <div class="footer-content">
+      <h2 class="footer-title" id="thanks-title">Obrigada!</h2>
+      <p class="footer-note">
+        Lembrete: arte cibernética é muito mais do que generativa. Pesquise, brinque, explore e experimente novas mídias.
       </p>
+    </div>
+  </footer>
 
-      <h1 class="headline">Arte pública em 3D no seu navegador.</h1>
-
-      <p class="subtitle">
-        Estamos calibrando as primeiras intervenções artísticas em Realidade Aumentada georreferenciada. Sem instalação de aplicativo — apenas aponte a câmera.
-      </p>
-    </main>
-
-    <footer class="site-footer">
-      <span>Fortaleza, CE</span>
-    </footer>
-  </div>
+  <script defer src="js/reduced-motion.js"></script>
+  <script defer src="js/carousel.js"></script>
+  <script defer src="js/archive-feedback.js"></script>
+  <script defer src="js/main.js"></script>
 </body>
 </html>
