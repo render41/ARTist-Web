@@ -592,11 +592,12 @@
   }
 
   .carousel-track {
+    --slide-width: min(calc(100% - 3.5rem), 374px);
+    --slide-gap: clamp(1rem, 3.2vw, 2.9375rem);
     position: relative;
     display: flex;
     align-items: stretch;
-    gap: clamp(1rem, 3.2vw, 2.9375rem);
-    padding-inline: max(var(--page-gutter), calc((100% - 374px) / 2));
+    gap: var(--slide-gap);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
@@ -607,35 +608,28 @@
     display: none;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .carousel-track {
-      scroll-behavior: smooth;
-    }
+  /* Espaçadores reais no flex garantem centralização do 1º e do último card */
+  .carousel-track::before,
+  .carousel-track::after {
+    content: '';
+    flex: 0 0 max(
+      0px,
+      calc((100% - var(--slide-width)) / 2 - var(--slide-gap))
+    );
   }
 
-  .carousel-track > * {
-    flex: 0 0 min(calc(100% - 1rem), 374px);
+  .carousel-track.is-programmatic-scroll {
+    scroll-snap-type: none;
+  }
+
+  .carousel-track > .territory-card {
+    flex: 0 0 var(--slide-width);
     scroll-snap-align: center;
   }
 
   @media (min-width: 768px) {
     .carousel-track {
-      padding-inline: max(var(--page-gutter), calc((100% - min(78vw, 760px)) / 2));
-    }
-
-    .carousel-track > * {
-      flex: 0 0 min(78vw, 760px);
-    }
-  }
-
-  /* Loop infinito sem clonar nós no DOM quando sibling-index() é suportado */
-  @supports (order: calc(sibling-index())) {
-    .carousel-track > :first-child {
-      order: clamp(0, var(--current) - (sibling-count() - 3), 1);
-    }
-
-    .carousel-track > :last-child {
-      order: calc(-1 * clamp(0, 2 - var(--current), 1));
+      --slide-width: min(78vw, 760px);
     }
   }
 

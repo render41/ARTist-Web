@@ -1,17 +1,17 @@
 /**
  * Módulo do carrossel acessível de Cartografias.
- * Baseado em scroll nativo horizontal + CSS scroll-snap, com controles HTML,
- * marcadores dinâmicos, anúncio em região aria-live e loop progressivo.
+ * Baseado em scroll nativo horizontal + CSS scroll-snap, com transição previsível
+ * pelos botões anterior/próximo, marcadores diretos e teclado.
  */
 (() => {
   'use strict';
 
   const namespace = (window.ArtistWebModules = window.ArtistWebModules || {});
   const DEBOUNCE_SCROLL_SETTLE_MS = 140;
+  const PROGRAMMATIC_SCROLL_FALLBACK_MS = 550;
 
   /**
-   * Calcula a distância horizontal entre o centro do slide e o centro visível da trilha.
-   * Usa getBoundingClientRect para independer de offsetParent e incluir scrollLeft.
+   * Calcula o deslocamento horizontal entre o centro do slide e o centro visível da trilha.
    */
   function getCenterScrollDelta(trackElement, slideElement) {
     const trackRect = trackElement.getBoundingClientRect();
@@ -22,47 +22,38 @@
   }
 
   /**
-   * Ordena os slides pela posição visual atual no eixo horizontal.
+   * Localiza o índice do slide mais próximo do centro visível da trilha.
    */
-  function getSlidesInVisualOrder(slides) {
-    return [...slides].sort((slideA, slideB) => {
-      return slideA.getBoundingClientRect().left - slideB.getBoundingClientRect().left;
-    });
-  }
-
-  /**
-   * Localiza o slide mais próximo do centro visível da trilha.
-   */
-  function findNearestSlide(trackElement, slides) {
-    let nearestSlide = slides[0];
+  function findNearestSlideIndex(trackElement, slides) {
+    let nearestIndex = 0;
     let shortestDistance = Number.POSITIVE_INFINITY;
 
-    for (const slide of slides) {
+    slides.forEach((slide, index) => {
       const distance = Math.abs(getCenterScrollDelta(trackElement, slide));
       if (distance < shortestDistance) {
         shortestDistance = distance;
-        nearestSlide = slide;
+        nearestIndex = index;
       }
-    }
+    });
 
-    return nearestSlide;
+    return nearestIndex;
   }
 
   /**
-   * Cria os botões marcadores a partir de data-marker-name de cada slide.
+   * Gera os botões marcadores com nomes acessíveis a partir dos slides.
    */
-  function createMarkerButtons(domSlides, markersContainer, onSelectSlide) {
+  function createMarkerButtons(slides, markersContainer, onSelectSlide) {
     markersContainer.innerHTML = '';
 
-    return domSlides.map((slide, domIndex) => {
+    return slides.map((slide, index) => {
       const markerButton = document.createElement('button');
       markerButton.type = 'button';
       markerButton.className = 'carousel-marker';
       markerButton.setAttribute(
         'aria-label',
-        slide.dataset.markerName || `Ir para território ${domIndex + 1}`
+        slide.dataset.markerName || `Ir para território ${index + 1}`
       );
-      markerButton.addEventListener('click', () => onSelectSlide(domIndex));
+      markerButton.addEventListener('click', () => onSelectSlide(index));
       markersContainer.appendChild(markerButton);
       return markerButton;
     });
@@ -84,41 +75,35 @@
       return;
     }
 
-    const domSlides = Array.from(trackElement.children);
-    if (domSlides.length === 0) {
+    const slides = Array.from(trackElement.querySelectorAll('.territory-card'));
+    if (slides.length === 0) {
       return;
     }
 
-    const supportsSiblingIndexLooping =
-      domSlides.length >= 3 && CSS.supports('order', 'calc(sibling-index())');
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const totalSlides = slides.length;
 
-    let pendingTargetDomIndex = null;
+    let currentIndex = 0;
+    let pendingTargetIndex = null;
     let navigationToken = 0;
-    let lastMarkerDomIndex = -1;
-    let lastSettledDomIndex = -1;
+    let lastMarkerIndex = -1;
+    let lastSettledIndex = -1;
     let isScrollFrameScheduled = false;
     let scrollSettleTimerId = null;
-    let isCompensatingScroll = false;
-    let hasUserInteracted = false;
+    let programmaticFallbackTimerId = null;
 
-    const markerButtons = createMarkerButtons(
-      domSlides,
-      markersContainer,
-      (domIndex) => {
-        hasUserInteracted = true;
-        navigateToDomIndex(domIndex);
-      }
-    );
+    const markerButtons = createMarkerButtons(slides, markersContainer, (index) => {
+      navigateToIndex(index);
+    });
 
-    function updateMarkerIndicators(activeDomIndex) {
-      if (activeDomIndex === lastMarkerDomIndex) {
+    function updateMarkerIndicators(activeIndex) {
+      if (activeIndex === lastMarkerIndex) {
         return;
       }
 
-      lastMarkerDomIndex = activeDomIndex;
+      lastMarkerIndex = activeIndex;
       markerButtons.forEach((button, index) => {
-        if (index === activeDomIndex) {
+        if (index === activeIndex) {
           button.setAttribute('aria-current', 'true');
         } else {
           button.removeAttribute('aria-current');
@@ -126,200 +111,136 @@
       });
     }
 
-    function updateButtonDisabledStates(activeDomIndex) {
-      if (supportsSiblingIndexLooping) {
-        previousButton.disabled = false;
-        nextButton.disabled = false;
-        return;
-      }
-
-      const visualSlides = getSlidesInVisualOrder(domSlides);
-      const activeSlide = domSlides[activeDomIndex];
-      const visualIndex = visualSlides.indexOf(activeSlide);
-      previousButton.disabled = visualIndex <= 0;
-      nextButton.disabled = visualIndex >= visualSlides.length - 1;
+    function clearProgrammaticScrollState() {
+      clearTimeout(programmaticFallbackTimerId);
+      programmaticFallbackTimerId = null;
+      trackElement.classList.remove('is-programmatic-scroll');
     }
 
-    function updateParkedSlidesAccessibility() {
-      if (!supportsSiblingIndexLooping) {
-        return;
-      }
-
-      domSlides.forEach((slide) => {
-        const computedOrder = Number.parseInt(getComputedStyle(slide).order, 10) || 0;
-        slide.inert = computedOrder !== 0;
-      });
+    function announceSettledSlide(index) {
+      const activeSlide = slides[index];
+      const territoryTitle =
+        activeSlide?.querySelector('.territory-name')?.textContent?.replace(':', '') ||
+        `Território ${index + 1}`;
+      statusRegion.textContent = `Território ${index + 1} de ${totalSlides}: ${territoryTitle}`;
     }
 
-    /**
-     * Ajusta --current para estacionar slides extremos sem deslocar o card visível.
-     */
-    function syncLoopParkingWithCompensation(activeDomIndex) {
-      if (!supportsSiblingIndexLooping) {
+    function scrollToSlide(targetIndex, { smooth, token = null }) {
+      const targetSlide = slides[targetIndex];
+      if (!targetSlide) {
         return;
       }
 
-      const nextVarValue = String(activeDomIndex);
-      if (trackElement.style.getPropertyValue('--current') === nextVarValue) {
-        updateParkedSlidesAccessibility();
+      const maxScrollLeft = Math.max(0, trackElement.scrollWidth - trackElement.clientWidth);
+      const rawTargetLeft = trackElement.scrollLeft + getCenterScrollDelta(trackElement, targetSlide);
+      const clampedTargetLeft = Math.min(maxScrollLeft, Math.max(0, rawTargetLeft));
+
+      if (Math.abs(clampedTargetLeft - trackElement.scrollLeft) < 1) {
+        clearProgrammaticScrollState();
+        pendingTargetIndex = null;
         return;
       }
 
-      const activeSlide = domSlides[activeDomIndex];
-      const leftBefore = activeSlide.getBoundingClientRect().left;
-
-      isCompensatingScroll = true;
-      const originalBehavior = trackElement.style.scrollBehavior;
-      trackElement.style.scrollBehavior = 'auto';
-      trackElement.style.scrollSnapType = 'none';
-      trackElement.style.overflowX = 'hidden';
-      trackElement.style.setProperty('--current', nextVarValue);
-
-      const leftAfter = activeSlide.getBoundingClientRect().left;
-      const shiftDelta = leftAfter - leftBefore;
-      if (Math.abs(shiftDelta) >= 0.5) {
-        trackElement.scrollLeft += shiftDelta;
-      }
-
-      updateParkedSlidesAccessibility();
-      trackElement.style.scrollSnapType = '';
-      trackElement.style.scrollBehavior = originalBehavior;
-
-      // Mantém overflow-x oculto por dois quadros para evitar flicker visual no iOS Safari.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          trackElement.style.overflowX = '';
-          isCompensatingScroll = false;
-        });
-      });
-    }
-
-    function scrollToSlide(targetSlide, useSmoothScroll) {
-      const delta = getCenterScrollDelta(trackElement, targetSlide);
-      if (Math.abs(delta) < 1) {
-        return;
-      }
-
-      const useSmooth = useSmoothScroll && !reducedMotionQuery.matches;
-      const originalBehavior = trackElement.style.scrollBehavior;
-
-      if (!useSmooth) {
-        trackElement.style.scrollBehavior = 'auto';
+      const useSmooth = smooth && !reducedMotionQuery.matches;
+      if (useSmooth) {
+        // Desativa temporariamente o scroll-snap para evitar que o navegador aborte a animação no meio.
+        trackElement.classList.add('is-programmatic-scroll');
+        clearTimeout(programmaticFallbackTimerId);
+        programmaticFallbackTimerId = window.setTimeout(() => {
+          finalizeNavigation({ announce: true, token });
+        }, PROGRAMMATIC_SCROLL_FALLBACK_MS);
+      } else {
+        clearProgrammaticScrollState();
       }
 
       trackElement.scrollTo({
-        left: trackElement.scrollLeft + delta,
+        left: clampedTargetLeft,
         behavior: useSmooth ? 'smooth' : 'auto',
       });
-
-      if (!useSmooth) {
-        trackElement.style.scrollBehavior = originalBehavior;
-      }
     }
 
-    function navigateToDomIndex(targetDomIndex) {
-      const targetSlide = domSlides[targetDomIndex];
-      if (!targetSlide) {
+    function finalizeNavigation({ announce, token = null }) {
+      if (token !== null && token !== navigationToken) {
+        return;
+      }
+
+      clearProgrammaticScrollState();
+
+      const settledIndex =
+        pendingTargetIndex !== null
+          ? pendingTargetIndex
+          : findNearestSlideIndex(trackElement, slides);
+
+      pendingTargetIndex = null;
+      currentIndex = settledIndex;
+      updateMarkerIndicators(settledIndex);
+
+      if (announce && settledIndex !== lastSettledIndex) {
+        announceSettledSlide(settledIndex);
+      }
+
+      lastSettledIndex = settledIndex;
+    }
+
+    function navigateToIndex(targetIndex) {
+      if (targetIndex < 0 || targetIndex >= totalSlides) {
         return;
       }
 
       navigationToken += 1;
       const currentToken = navigationToken;
-      pendingTargetDomIndex = targetDomIndex;
-      updateMarkerIndicators(targetDomIndex);
-      scrollToSlide(targetSlide, true);
-
-      // Caso o deslocamento já esteja no alvo (delta < 1px), finaliza de imediato.
-      if (Math.abs(getCenterScrollDelta(trackElement, targetSlide)) < 1) {
-        handleScrollSettled({ announce: true, token: currentToken });
-      }
+      currentIndex = targetIndex;
+      pendingTargetIndex = targetIndex;
+      updateMarkerIndicators(targetIndex);
+      scrollToSlide(targetIndex, { smooth: true, token: currentToken });
     }
 
-    function navigateByDirection(step) {
-      hasUserInteracted = true;
-      const visualSlides = getSlidesInVisualOrder(domSlides);
-      const referenceSlide =
-        pendingTargetDomIndex !== null
-          ? domSlides[pendingTargetDomIndex]
-          : findNearestSlide(trackElement, visualSlides);
-
-      const currentVisualIndex = visualSlides.indexOf(referenceSlide);
-      if (currentVisualIndex === -1) {
-        return;
-      }
-
-      const nextVisualIndex = currentVisualIndex + step;
-      if (nextVisualIndex < 0 || nextVisualIndex >= visualSlides.length) {
-        return;
-      }
-
-      const targetSlide = visualSlides[nextVisualIndex];
-      navigateToDomIndex(domSlides.indexOf(targetSlide));
-    }
-
-    function handleScrollSettled({ announce, token = null }) {
-      if (isCompensatingScroll) {
-        return;
-      }
-
-      // Ignora um scrollend antigo se um novo clique já iniciou outro deslocamento.
-      if (token !== null && token !== navigationToken) {
-        return;
-      }
-
-      const visualSlides = getSlidesInVisualOrder(domSlides);
-      const settledSlide = findNearestSlide(trackElement, visualSlides);
-      const settledDomIndex = domSlides.indexOf(settledSlide);
-
-      pendingTargetDomIndex = null;
-      updateMarkerIndicators(settledDomIndex);
-      syncLoopParkingWithCompensation(settledDomIndex);
-      updateButtonDisabledStates(settledDomIndex);
-
-      if (announce && settledDomIndex !== lastSettledDomIndex) {
-        const territoryTitle =
-          settledSlide.querySelector('.territory-name')?.textContent?.replace(':', '') ||
-          `Território ${settledDomIndex + 1}`;
-        statusRegion.textContent = `Território ${settledDomIndex + 1} de ${domSlides.length}: ${territoryTitle}`;
-      }
-
-      lastSettledDomIndex = settledDomIndex;
+    function navigateByStep(step) {
+      const baseIndex = pendingTargetIndex !== null ? pendingTargetIndex : currentIndex;
+      const nextIndex = (baseIndex + step + totalSlides) % totalSlides;
+      navigateToIndex(nextIndex);
     }
 
     function handleLiveScroll() {
-      if (isCompensatingScroll || pendingTargetDomIndex !== null || isScrollFrameScheduled) {
+      if (pendingTargetIndex !== null || isScrollFrameScheduled) {
         return;
       }
 
       isScrollFrameScheduled = true;
       requestAnimationFrame(() => {
         isScrollFrameScheduled = false;
-        if (isCompensatingScroll || pendingTargetDomIndex !== null) {
+        if (pendingTargetIndex !== null) {
           return;
         }
 
-        const visualSlides = getSlidesInVisualOrder(domSlides);
-        const nearestSlide = findNearestSlide(trackElement, visualSlides);
-        updateMarkerIndicators(domSlides.indexOf(nearestSlide));
+        const nearestIndex = findNearestSlideIndex(trackElement, slides);
+        currentIndex = nearestIndex;
+        updateMarkerIndicators(nearestIndex);
       });
     }
 
-    previousButton.addEventListener('click', () => navigateByDirection(-1));
-    nextButton.addEventListener('click', () => navigateByDirection(1));
+    previousButton.addEventListener('click', () => navigateByStep(-1));
+    nextButton.addEventListener('click', () => navigateByStep(1));
 
-    trackElement.addEventListener(
-      'pointerdown',
-      () => {
-        hasUserInteracted = true;
-      },
-      { passive: true }
-    );
+    trackElement.addEventListener('keydown', (event) => {
+      if (event.target !== trackElement) {
+        return;
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        navigateByStep(1);
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        navigateByStep(-1);
+      }
+    });
 
     trackElement.addEventListener('scroll', handleLiveScroll, { passive: true });
 
     if ('onscrollend' in window) {
       trackElement.addEventListener('scrollend', () => {
-        handleScrollSettled({ announce: true, token: navigationToken });
+        finalizeNavigation({ announce: true, token: navigationToken });
       });
     } else {
       trackElement.addEventListener(
@@ -328,37 +249,19 @@
           clearTimeout(scrollSettleTimerId);
           const scheduledToken = navigationToken;
           scrollSettleTimerId = window.setTimeout(() => {
-            handleScrollSettled({ announce: true, token: scheduledToken });
+            finalizeNavigation({ announce: true, token: scheduledToken });
           }, DEBOUNCE_SCROLL_SETTLE_MS);
         },
         { passive: true }
       );
     }
 
-    const initialDomIndex = Math.max(
-      0,
-      domSlides.findIndex((slide) => slide.dataset.initialSlide === 'true')
-    );
-
-    if (supportsSiblingIndexLooping) {
-      trackElement.style.setProperty('--current', String(initialDomIndex));
-      updateParkedSlidesAccessibility();
-    }
-
-    scrollToSlide(domSlides[initialDomIndex], false);
-    handleScrollSettled({ announce: false });
-
-    // Reajusta o centro inicial após o carregamento das fontes caso o usuário ainda não tenha interagido.
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        if (!hasUserInteracted) {
-          scrollToSlide(domSlides[initialDomIndex], false);
-          handleScrollSettled({ announce: false });
-        }
-      });
-    }
+    // Inicia explicitamente no primeiro elemento (Messejana) sem animação.
+    currentIndex = 0;
+    lastSettledIndex = 0;
+    updateMarkerIndicators(0);
+    scrollToSlide(0, { smooth: false });
   }
 
   namespace.initTerritoriesCarousel = initTerritoriesCarousel;
 })();
-

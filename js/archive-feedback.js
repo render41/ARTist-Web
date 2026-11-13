@@ -1,6 +1,6 @@
 /**
  * Módulo de feedback para os botões do Acervo Aberto.
- * Informa de maneira acessível quando os arquivos de download ainda estão em preparação.
+ * Exibe aviso acessível quando links ou downloads do acervo ainda estão em preparação.
  */
 (() => {
   'use strict';
@@ -17,13 +17,16 @@
 
     pendingButtons.forEach((button) => {
       button.addEventListener('click', () => {
+        const customMessage = button.dataset.pendingMessage;
         const resourceName = button.dataset.pendingResource || 'Este material';
+
         feedbackElement.hidden = false;
-        feedbackElement.textContent = `${resourceName}: os arquivos finais serão disponibilizados para download em breve neste acervo.`;
+        feedbackElement.textContent =
+          customMessage ||
+          `${resourceName}: os arquivos finais serão disponibilizados para download em breve neste acervo.`;
       });
     });
   }
 
   namespace.initArchiveFeedback = initArchiveFeedback;
 })();
-

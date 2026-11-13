@@ -4,13 +4,93 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Instalação Invisível: pesquisa de TCC em Arte e Realidade Aumentada no tecido urbano de Fortaleza (IFCE), mapeando Messejana, Benfica e Jacarey.">
+  <meta name="keywords" content="Instalação Invisível, Realidade Aumentada, Arte Digital, Arte Cibernética, Fortaleza, IFCE, WebAR, AR.js, Cartografia Urbana, Messejana, Benfica, Jacarey">
+  <meta name="author" content="Fernanda Lopes; Gabriel Miranda">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#fef3dc">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Instalação Invisível">
+  <meta property="og:title" content="Instalação Invisível — Arte em Realidade Aumentada | Fortaleza CE">
+  <meta property="og:description" content="Pesquisa em arte que ocupa a paisagem urbana de Fortaleza por meio da Realidade Aumentada, mapeando Messejana, Benfica e Jacarey.">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Instalação Invisível — Arte em Realidade Aumentada | Fortaleza CE">
+  <meta name="twitter:description" content="Arte em Realidade Aumentada no tecido urbano de Fortaleza. Pesquisa de TCC em Artes Visuais (IFCE).">
+
   <title>Instalação Invisível — Arte em Realidade Aumentada | Fortaleza CE</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CreativeWork",
+          "name": "Instalação Invisível: Arte em realidade aumentada",
+          "inLanguage": "pt-BR",
+          "datePublished": "2026",
+          "description": "Pesquisa de TCC em Arte e Realidade Aumentada que ocupa o tecido urbano de Fortaleza por meio de Image Tracking e Geolocalização.",
+          "creator": {
+            "@type": "Person",
+            "name": "Fernanda Lopes"
+          },
+          "contributor": {
+            "@type": "Person",
+            "name": "Gabriel Miranda"
+          },
+          "sourceOrganization": {
+            "@type": "EducationalOrganization",
+            "name": "Instituto Federal de Educação, Ciência e Tecnologia do Ceará (IFCE) - Licenciatura em Artes Visuais"
+          },
+          "spatialCoverage": [
+            {
+              "@type": "Place",
+              "name": "Messejana, Fortaleza — CE",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": -3.831601,
+                "longitude": -38.497673
+              }
+            },
+            {
+              "@type": "Place",
+              "name": "Benfica (Av. da Universidade), Fortaleza — CE",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": -3.740955,
+                "longitude": -38.539123
+              }
+            },
+            {
+              "@type": "Place",
+              "name": "Benfica (IFCE 13 de Maio), Fortaleza — CE",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": -3.744483,
+                "longitude": -38.536499
+              }
+            },
+            {
+              "@type": "Place",
+              "name": "Jacarey (Bairro Cambeba), Fortaleza — CE",
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": -3.80071,
+                "longitude": -38.490736
+              }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo principal</a>
@@ -216,7 +296,6 @@
             aria-roledescription="slide"
             aria-label="2 de 3: Bairro Benfica"
             data-marker-name="Ir para Benfica"
-            data-initial-slide="true"
           >
             <header class="territory-header">
               <p class="territory-label">Bairro</p>
@@ -337,14 +416,14 @@
             <p class="archive-card-copy">
               A maioria dos guias de como utilizar a Artivive e principalmente o AR.js estão em inglês. Por isso montamos um repositório no GitHub com o passo a passo para criar com o Artivive Bridge e a lógica de geolocalização na web.
             </p>
-            <a
+            <button
+              type="button"
               class="archive-button"
-              href="https://github.com/render41/ARTist-Web"
-              target="_blank"
-              rel="noopener noreferrer"
+              data-pending-resource="Repositório no GitHub"
+              data-pending-message="Repositório no GitHub: o link oficial será adicionado em breve neste acervo."
             >
               Acessar Repositório
-            </a>
+            </button>
           </article>
 
           <article class="archive-card">
