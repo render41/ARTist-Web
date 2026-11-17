@@ -15,6 +15,14 @@
     modules.initTerritoriesCarousel();
   }
 
+  if (typeof modules.initMediaGallery === 'function') {
+    modules.initMediaGallery();
+  }
+
+  if (typeof modules.initMediaProtection === 'function') {
+    modules.initMediaProtection();
+  }
+
   if (typeof modules.initArchiveFeedback === 'function') {
     modules.initArchiveFeedback();
   }
