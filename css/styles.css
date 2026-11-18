@@ -491,8 +491,17 @@
     transition: transform 160ms ease, background-color 160ms ease;
   }
 
+  .cta-button img {
+    transform: rotate(180deg);
+    transition: transform 180ms ease;
+  }
+
   .cta-button:hover {
     background-color: #f4e2be;
+  }
+
+  .cta-button:hover img {
+    transform: rotate(180deg) translateY(-2px);
   }
 
   .cta-button:active {
@@ -500,8 +509,13 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cta-button {
+    .cta-button,
+    .cta-button img {
       transition: none;
+    }
+
+    .cta-button:hover img {
+      transform: rotate(180deg);
     }
 
     .cta-button:active {
