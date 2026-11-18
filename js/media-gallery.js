@@ -195,12 +195,22 @@
 
     let activeEntry = null;
     let activeItemIndex = 0;
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     function pauseActiveMedia() {
       const activeVideo = viewportElement.querySelector('video');
       if (activeVideo) {
         activeVideo.pause();
       }
+    }
+
+    function stepModalItem(step) {
+      if (!activeEntry) {
+        return;
+      }
+      const total = activeEntry.items.length;
+      activeItemIndex = (activeItemIndex + step + total) % total;
+      renderModalItem();
     }
 
     function renderModalItem() {
@@ -224,7 +234,16 @@
 
       const tabButtons = tabsElement.querySelectorAll('button');
       tabButtons.forEach((button, index) => {
-        button.setAttribute('aria-pressed', index === activeItemIndex ? 'true' : 'false');
+        const isCurrent = index === activeItemIndex;
+        button.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
+
+        if (isCurrent) {
+          button.scrollIntoView({
+            block: 'nearest',
+            inline: 'center',
+            behavior: reducedMotionQuery.matches ? 'auto' : 'smooth',
+          });
+        }
       });
     }
 
@@ -248,22 +267,51 @@
       });
     }
 
-    prevButton.addEventListener('click', () => {
-      if (!activeEntry) {
-        return;
-      }
-      const total = activeEntry.items.length;
-      activeItemIndex = (activeItemIndex - 1 + total) % total;
-      renderModalItem();
-    });
+    prevButton.addEventListener('click', () => stepModalItem(-1));
+    nextButton.addEventListener('click', () => stepModalItem(1));
 
-    nextButton.addEventListener('click', () => {
-      if (!activeEntry) {
-        return;
+    // Permite navegar com gesto de deslizar horizontal sobre as fotos no mobile.
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    viewportElement.addEventListener(
+      'touchstart',
+      (event) => {
+        if (event.touches.length !== 1 || event.target.closest('video')) {
+          touchStartX = 0;
+          return;
+        }
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+      },
+      { passive: true }
+    );
+
+    viewportElement.addEventListener(
+      'touchend',
+      (event) => {
+        if (!touchStartX || event.changedTouches.length !== 1) {
+          return;
+        }
+        const deltaX = event.changedTouches[0].clientX - touchStartX;
+        const deltaY = event.changedTouches[0].clientY - touchStartY;
+        touchStartX = 0;
+
+        if (Math.abs(deltaX) >= 42 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
+          stepModalItem(deltaX < 0 ? 1 : -1);
+        }
+      },
+      { passive: true }
+    );
+
+    dialogElement.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        stepModalItem(-1);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        stepModalItem(1);
       }
-      const total = activeEntry.items.length;
-      activeItemIndex = (activeItemIndex + 1) % total;
-      renderModalItem();
     });
 
     dialogElement.addEventListener('close', () => {

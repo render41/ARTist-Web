@@ -928,9 +928,9 @@
      Visualizador ampliado (<dialog> modal) com animação top-layer
      ========================================================================== */
   .gallery-dialog {
-    width: min(calc(100vw - 2rem), 920px);
+    width: min(calc(100vw - 1rem), 920px);
     max-width: none;
-    max-height: calc(100dvh - 2rem);
+    max-height: calc(100dvh - 1rem);
     margin: auto;
     padding: 0;
     border: var(--border-ink);
@@ -942,6 +942,13 @@
     transition-duration: 220ms;
     transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     transition-behavior: allow-discrete;
+  }
+
+  @media (min-width: 640px) {
+    .gallery-dialog {
+      width: min(calc(100vw - 2rem), 920px);
+      max-height: calc(100dvh - 2rem);
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -1009,15 +1016,16 @@
   .gallery-dialog-surface {
     display: flex;
     flex-direction: column;
-    max-height: calc(100dvh - 2rem);
+    max-height: calc(100dvh - 1rem);
+    overflow-y: auto;
   }
 
   .gallery-dialog-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
+    gap: 0.75rem;
+    padding: 0.75rem 0.875rem;
     border-bottom: var(--border-ink);
   }
 
@@ -1026,15 +1034,34 @@
   }
 
   .gallery-dialog-title {
-    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+    font-size: clamp(1rem, 0.92rem + 0.5vw, 1.375rem);
     font-weight: 800;
+    line-height: 1.2;
     letter-spacing: -0.02em;
   }
 
   .gallery-dialog-subtitle {
-    font-size: 0.8125rem;
+    margin-top: 0.2rem;
+    font-size: 0.75rem;
+    line-height: 1.35;
     font-variant-numeric: tabular-nums;
-    opacity: 0.8;
+    opacity: 0.82;
+  }
+
+  @media (min-width: 640px) {
+    .gallery-dialog-surface {
+      max-height: calc(100dvh - 2rem);
+    }
+
+    .gallery-dialog-header {
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .gallery-dialog-subtitle {
+      font-size: 0.8125rem;
+    }
   }
 
   .gallery-dialog-close,
@@ -1081,13 +1108,14 @@
     display: grid;
     place-items: center;
     background-color: var(--color-ink);
-    padding: 0.75rem;
-    min-height: 240px;
+    padding: 0;
+    min-height: 180px;
+    touch-action: pan-y;
   }
 
   .gallery-dialog-media {
     max-width: 100%;
-    max-height: 58dvh;
+    max-height: 52dvh;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -1096,21 +1124,21 @@
   .gallery-dialog-footer {
     display: flex;
     flex-direction: column;
-    gap: 0.875rem;
-    padding: 1rem 1.25rem;
+    gap: 0.625rem;
+    padding: 0.75rem 0.875rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
     border-top: var(--border-ink);
   }
 
   .gallery-dialog-caption {
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: 0.8125rem;
+    line-height: 1.45;
   }
 
   .gallery-dialog-nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .gallery-dialog-counter {
@@ -1121,14 +1149,54 @@
 
   .gallery-dialog-tabs {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    padding-bottom: 0.125rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gallery-dialog-tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .gallery-dialog-tab {
+    flex: 0 0 auto;
     min-block-size: 44px;
     padding-inline: 0.75rem;
     font-size: 0.75rem;
+    white-space: nowrap;
+    scroll-snap-align: center;
+  }
+
+  @media (min-width: 640px) {
+    .gallery-dialog-viewport {
+      padding: 0.75rem;
+      min-height: 240px;
+    }
+
+    .gallery-dialog-media {
+      max-height: 58dvh;
+    }
+
+    .gallery-dialog-footer {
+      gap: 0.875rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .gallery-dialog-caption {
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .gallery-dialog-tabs {
+      flex-wrap: wrap;
+      overflow-x: visible;
+      gap: 0.5rem;
+      padding-bottom: 0;
+    }
   }
 
   /* Bloqueio casual de arrasto, seleção e toque longo para salvar mídias (iOS/Desktop) */
