@@ -1,6 +1,6 @@
 /**
- * Módulo de galeria inline e visualizador ampliado (<dialog> modal) para Cartografias.
- * Mantém a proporção 1:1 nos cards, exibe ícones indicativos de mídia e anima abertura/saída.
+ * Módulo de galeria inline e visualizador expandido minimalista (<dialog>) para Cartografias.
+ * Ao expandir, exibe todas as imagens e vídeos da série em sequência vertical imersiva sobre fundo escuro.
  */
 (() => {
   'use strict';
@@ -37,7 +37,7 @@
   }
 
   /**
-   * Fecha a modal aguardando a animação de saída em navegadores sem transition de overlay.
+   * Fecha o visualizador aguardando a transição de saída quando overlay/display não é suportado.
    */
   async function closeTopLayerDialog(dialogElement) {
     if (!dialogElement.open) {
@@ -50,7 +50,7 @@
       if (animations.length > 0) {
         await Promise.race([
           Promise.allSettled(animations.map((animation) => animation.finished)),
-          new Promise((resolve) => window.setTimeout(resolve, 500)),
+          new Promise((resolve) => window.setTimeout(resolve, 450)),
         ]);
       }
 
@@ -64,9 +64,9 @@
   }
 
   /**
-   * Garante light-dismiss animado (clicar fora da caixa) em navegadores sem closedBy nativo.
+   * Fecha o modal pelo botão X, pela tecla Esc ou ao tocar no espaço escuro vazio ao redor da mídia.
    */
-  function attachDialogDismissHandlers(dialogElement, closeButton) {
+  function attachDialogDismissHandlers(dialogElement, closeButton, streamElement) {
     if (closeButton) {
       closeButton.addEventListener('click', () => {
         closeTopLayerDialog(dialogElement);
@@ -78,32 +78,23 @@
       closeTopLayerDialog(dialogElement);
     });
 
-    const isPointerOutsideDialog = (event) => {
-      const rect = dialogElement.getBoundingClientRect();
+    const isBlankOverlayArea = (target) => {
       return (
-        event.clientX < rect.left ||
-        event.clientX > rect.right ||
-        event.clientY < rect.top ||
-        event.clientY > rect.bottom
+        target === dialogElement ||
+        target === streamElement ||
+        target.classList.contains('gallery-dialog-surface')
       );
     };
 
-    let startedOutside = false;
-
-    dialogElement.addEventListener('pointerdown', (event) => {
-      startedOutside = isPointerOutsideDialog(event);
-    });
-
-    dialogElement.addEventListener('pointerup', (event) => {
-      if (startedOutside && isPointerOutsideDialog(event)) {
+    dialogElement.addEventListener('click', (event) => {
+      if (isBlankOverlayArea(event.target)) {
         closeTopLayerDialog(dialogElement);
       }
-      startedOutside = false;
     });
   }
 
   /**
-   * Retorna um ícone SVG inline simbolizando foto ou vídeo.
+   * Retorna ícone SVG inline indicando fotografia ou vídeo.
    */
   function createTypeIconMarkup(mediaType) {
     if (mediaType === 'video') {
@@ -114,7 +105,7 @@
   }
 
   /**
-   * Cria o elemento visual (imagem ou vídeo pausável) com animação de entrada e proteções.
+   * Cria elemento de imagem ou vídeo aplicando as proteções contra download.
    */
   function createMediaNode(item, { allowControls }) {
     if (item.type === 'video') {
@@ -168,169 +159,64 @@
   }
 
   function createDialogController(dialogElement) {
-    const titleElement = dialogElement.querySelector('#gallery-dialog-title');
-    const subtitleElement = dialogElement.querySelector('.gallery-dialog-subtitle');
-    const viewportElement = dialogElement.querySelector('.gallery-dialog-viewport');
-    const captionElement = dialogElement.querySelector('.gallery-dialog-caption');
-    const counterElement = dialogElement.querySelector('.gallery-dialog-counter');
-    const tabsElement = dialogElement.querySelector('.gallery-dialog-tabs');
-    const prevButton = dialogElement.querySelector('[data-dialog-action="prev"]');
-    const nextButton = dialogElement.querySelector('[data-dialog-action="next"]');
+    const streamElement = dialogElement.querySelector('.gallery-dialog-stream');
     const closeButton = dialogElement.querySelector('[data-dialog-action="close"]');
 
-    if (
-      !titleElement ||
-      !subtitleElement ||
-      !viewportElement ||
-      !captionElement ||
-      !counterElement ||
-      !tabsElement ||
-      !prevButton ||
-      !nextButton
-    ) {
+    if (!streamElement) {
       return null;
     }
 
-    attachDialogDismissHandlers(dialogElement, closeButton);
+    attachDialogDismissHandlers(dialogElement, closeButton, streamElement);
 
-    let activeEntry = null;
-    let activeItemIndex = 0;
-    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    function pauseActiveMedia() {
-      const activeVideo = viewportElement.querySelector('video');
-      if (activeVideo) {
-        activeVideo.pause();
-      }
-    }
-
-    function stepModalItem(step) {
-      if (!activeEntry) {
-        return;
-      }
-      const total = activeEntry.items.length;
-      activeItemIndex = (activeItemIndex + step + total) % total;
-      renderModalItem();
-    }
-
-    function renderModalItem() {
-      if (!activeEntry) {
-        return;
-      }
-
-      pauseActiveMedia();
-
-      const items = activeEntry.items;
-      const item = items[activeItemIndex];
-      const total = items.length;
-
-      viewportElement.innerHTML = '';
-      const mediaNode = createMediaNode(item, { allowControls: true });
-      mediaNode.className = 'gallery-dialog-media media-enter-animated';
-      viewportElement.appendChild(mediaNode);
-
-      captionElement.textContent = item.caption || '';
-      counterElement.textContent = `${activeItemIndex + 1} / ${total}`;
-
-      const tabButtons = tabsElement.querySelectorAll('button');
-      tabButtons.forEach((button, index) => {
-        const isCurrent = index === activeItemIndex;
-        button.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
-
-        if (isCurrent) {
-          button.scrollIntoView({
-            block: 'nearest',
-            inline: 'center',
-            behavior: reducedMotionQuery.matches ? 'auto' : 'smooth',
-          });
-        }
+    function pauseAllVideos() {
+      streamElement.querySelectorAll('video').forEach((videoElement) => {
+        videoElement.pause();
       });
     }
 
-    function renderTabs() {
-      tabsElement.innerHTML = '';
-      if (!activeEntry) {
-        return;
-      }
+    function renderVerticalStream(entry) {
+      streamElement.innerHTML = '';
 
-      activeEntry.items.forEach((item, index) => {
-        const tabButton = document.createElement('button');
-        tabButton.type = 'button';
-        tabButton.className = 'gallery-dialog-tab';
-        tabButton.setAttribute('aria-pressed', index === activeItemIndex ? 'true' : 'false');
-        tabButton.innerHTML = `${createTypeIconMarkup(item.type)}<span>${item.tag || `Item ${index + 1}`}</span>`;
-        tabButton.addEventListener('click', () => {
-          activeItemIndex = index;
-          renderModalItem();
-        });
-        tabsElement.appendChild(tabButton);
+      return entry.items.map((item) => {
+        const figureElement = document.createElement('figure');
+        figureElement.className = 'gallery-dialog-figure';
+
+        const mediaNode = createMediaNode(item, { allowControls: true });
+        mediaNode.className = 'gallery-dialog-media';
+        figureElement.appendChild(mediaNode);
+
+        if (item.caption) {
+          const captionElement = document.createElement('figcaption');
+          captionElement.className = 'gallery-dialog-caption';
+          captionElement.textContent = item.caption;
+          figureElement.appendChild(captionElement);
+        }
+
+        streamElement.appendChild(figureElement);
+        return figureElement;
       });
     }
-
-    prevButton.addEventListener('click', () => stepModalItem(-1));
-    nextButton.addEventListener('click', () => stepModalItem(1));
-
-    // Permite navegar com gesto de deslizar horizontal sobre as fotos no mobile.
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    viewportElement.addEventListener(
-      'touchstart',
-      (event) => {
-        if (event.touches.length !== 1 || event.target.closest('video')) {
-          touchStartX = 0;
-          return;
-        }
-        touchStartX = event.touches[0].clientX;
-        touchStartY = event.touches[0].clientY;
-      },
-      { passive: true }
-    );
-
-    viewportElement.addEventListener(
-      'touchend',
-      (event) => {
-        if (!touchStartX || event.changedTouches.length !== 1) {
-          return;
-        }
-        const deltaX = event.changedTouches[0].clientX - touchStartX;
-        const deltaY = event.changedTouches[0].clientY - touchStartY;
-        touchStartX = 0;
-
-        if (Math.abs(deltaX) >= 42 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
-          stepModalItem(deltaX < 0 ? 1 : -1);
-        }
-      },
-      { passive: true }
-    );
-
-    dialogElement.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        stepModalItem(-1);
-      } else if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        stepModalItem(1);
-      }
-    });
 
     dialogElement.addEventListener('close', () => {
       dialogElement.removeAttribute('data-closing');
-      pauseActiveMedia();
-      viewportElement.innerHTML = '';
+      pauseAllVideos();
+      streamElement.innerHTML = '';
       dialogElement.returnValue = '';
     });
 
     return {
       open(entry, startIndex = 0) {
         dialogElement.removeAttribute('data-closing');
-        activeEntry = entry;
-        activeItemIndex = startIndex;
-        titleElement.textContent = entry.title;
-        subtitleElement.textContent = entry.subtitle || '';
-        renderTabs();
-        renderModalItem();
+        dialogElement.setAttribute('aria-label', `${entry.title} — galeria ampliada`);
+        const renderedFigures = renderVerticalStream(entry);
         dialogElement.showModal();
+
+        const targetFigure = renderedFigures[startIndex] || renderedFigures[0];
+        if (targetFigure) {
+          requestAnimationFrame(() => {
+            targetFigure.scrollIntoView({ block: 'center', behavior: 'auto' });
+          });
+        }
       },
     };
   }
@@ -349,7 +235,6 @@
       !prevButton ||
       !nextButton ||
       !expandButton ||
-      !labelElement ||
       !counterElement
     ) {
       return;
@@ -388,8 +273,11 @@
         typeIconElement.innerHTML = createTypeIconMarkup(currentItem.type);
       }
 
-      labelElement.textContent = currentItem.tag || 'Registro';
-      counterElement.textContent = `${currentIndex + 1}/${total}`;
+      if (labelElement) {
+        labelElement.textContent = '';
+      }
+
+      counterElement.textContent = `${currentIndex + 1} / ${total}`;
     }
 
     prevButton.addEventListener('click', () => {
